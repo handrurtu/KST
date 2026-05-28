@@ -14,6 +14,8 @@ const MENU = [
   { id: 13, name: 'Fries',              price: 35, cat: 'Snacks',     img: 'fries.png' },
   { id: 14, name: 'Takoyaki',           price: 50, cat: 'Snacks',     img: 'takoyaki.png' },
   { id: 15, name: 'Kikiam',             price: 15, cat: 'Snacks',     img: 'kikiam.png' },
+  { id: 16, name: 'Extra Rice',         price: 15, cat: 'Rice Meals', img: 'rice.png' },
+
 ];
 
 let cart = {};
