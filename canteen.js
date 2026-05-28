@@ -1,42 +1,52 @@
 const MENU = [
-  { id: 1, name: 'Sisig Rice',  price: 70, cat: 'Rice Meals', img: 'sisig.png' },
-  { id: 2, name: 'Kare-Kare Rice',     price: 65, cat: 'Rice Meals', img: 'karekare.png' },
-  { id: 3, name: 'FriedChicken Rice', price: 55, cat: 'Rice Meals', img: 'friedchicken.png' },
-  { id: 4, name: 'Iced Tea',      price: 20, cat: 'Drinks', img: 'lemon.png' },
-  { id: 5, name: 'Bottled Water', price: 15, cat: 'Drinks', img: 'water.png' },
-  { id: 6, name: 'Hotdog Rice',    price: 45, cat: 'Rice Meals',     img: 'hotdog.png' },
-  { id: 7, name: 'Siomai Rice', price: 40, cat: 'Rice Meals', img: 'siomai.png' },
-  { id: 8, name: 'Hungarian Rice', price: 60, cat: 'Rice Meals', img: 'hungarian.png' },
-  { id: 9, name: 'Pakbet Rice', price: 35, cat: 'Rice Meals',    img: 'pakbet.png' },
-  { id: 10, name: 'Gulaman', price: 20, cat: 'Drinks', img: 'gulaman.png' },
-  { id: 11, name: 'Chicken Adobo Rice', price: 55, cat: 'Rice Meals', img: 'chickenadobo.png' },
+  { id: 1,  name: 'Sisig Rice',          price: 70, cat: 'Rice Meals', img: 'sisig.png' },
+  { id: 2,  name: 'Kare-Kare Rice',      price: 65, cat: 'Rice Meals', img: 'karekare.png' },
+  { id: 3,  name: 'Fried Chicken Rice',  price: 55, cat: 'Rice Meals', img: 'friedchicken.png' },
+  { id: 4,  name: 'Iced Tea',            price: 20, cat: 'Drinks',     img: 'lemon.png' },
+  { id: 5,  name: 'Bottled Water',       price: 15, cat: 'Drinks',     img: 'water.png' },
+  { id: 6,  name: 'Hotdog Rice',         price: 45, cat: 'Rice Meals', img: 'hotdog.png' },
+  { id: 7,  name: 'Siomai Rice',         price: 40, cat: 'Rice Meals', img: 'siomai.png' },
+  { id: 8,  name: 'Hungarian Rice',      price: 60, cat: 'Rice Meals', img: 'hungarian.png' },
+  { id: 9,  name: 'Pakbet Rice',         price: 35, cat: 'Rice Meals', img: 'pakbet.png' },
+  { id: 10, name: 'Gulaman',             price: 20, cat: 'Drinks',     img: 'gulaman.png' },
+  { id: 11, name: 'Chicken Adobo Rice',  price: 55, cat: 'Rice Meals', img: 'chickenadobo.png' },
   { id: 12, name: 'Chicken Pastil Rice', price: 25, cat: 'Rice Meals', img: 'chickenpastil.png' },
-  { id: 13, name: 'Fries', price: 35, cat: 'Snacks', img: 'fries.png' },
-  { id: 14, name: 'Takoyaki', price: 50, cat: 'Snacks', img: 'takoyaki.png' },
-  { id: 15, name: 'Kikiam', price: 15, cat: 'Snacks', img: 'kikiam.png' },
-
+  { id: 13, name: 'Fries',              price: 35, cat: 'Snacks',     img: 'fries.png' },
+  { id: 14, name: 'Takoyaki',           price: 50, cat: 'Snacks',     img: 'takoyaki.png' },
+  { id: 15, name: 'Kikiam',             price: 15, cat: 'Snacks',     img: 'kikiam.png' },
 ];
 
 let cart = {};
 let toastTimer = null;
 
 function getFiltered() {
-  const q    = document.getElementById('searchInput').value.toLowerCase();
+  // Trim and lowercase the query so capitalisation never matters
+  const q    = document.getElementById('searchInput').value.trim().toLowerCase();
   const maxP = parseInt(document.getElementById('priceFilter').value) || Infinity;
   const cat  = document.getElementById('catFilter').value;
   const sort = document.getElementById('sortBy').value;
 
-  let items = MENU.filter(i =>
-    (i.name.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)) &&
-    i.price <= maxP &&
-    (!cat || i.cat === cat)
-  );
+  let items = MENU.filter(i => {
+    // Search only by name (no desc field); both sides are lowercased
+    const nameMatch = i.name.toLowerCase().includes(q);
+    const catMatch  = i.cat.toLowerCase().includes(q);
+    const matchesQuery = q === '' || nameMatch || catMatch;
+    const matchesPrice = i.price <= maxP;
+    const matchesCat   = !cat || i.cat === cat;
+    return matchesQuery && matchesPrice && matchesCat;
+  });
 
-  if (sort === 'price-asc')  items.sort((a,b) => a.price - b.price);
-  if (sort === 'price-desc') items.sort((a,b) => b.price - a.price);
-  if (sort === 'name')       items.sort((a,b) => a.name.localeCompare(b.name));
+  if (sort === 'price-asc')  items.sort((a, b) => a.price - b.price);
+  if (sort === 'price-desc') items.sort((a, b) => b.price - a.price);
+  if (sort === 'name')       items.sort((a, b) => a.name.localeCompare(b.name));
 
   return items;
+}
+
+function imgTag(src, alt) {
+  return `<img src="${src}" alt="${alt}"
+    style="width:100%;height:100%;object-fit:cover;"
+    onerror="this.parentElement.innerHTML='<span style=font-size:2.2rem>🍽️</span>'">`;
 }
 
 function renderMenu() {
@@ -49,9 +59,9 @@ function renderMenu() {
     ? `<div class="empty-state"><span class="emoji">🔍</span><p>No items match your search.</p></div>`
     : items.map(item => `
       <div class="menu-card">
-        <div class="card-img" style="padding:0; overflow:hidden;">
-  <img src="${item.img}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;">
-</div>
+        <div class="card-img" style="padding:0;overflow:hidden;">
+          ${imgTag(item.img, item.name)}
+        </div>
         <div class="card-body">
           <div class="card-name">${item.name}</div>
           <div class="card-price">₱${item.price}.00</div>
@@ -85,9 +95,9 @@ function removeFromCart(id) {
 
 function renderCart() {
   const keys = Object.keys(cart);
-  const container = document.getElementById('cartItems');
-  const badge = document.getElementById('cart-badge');
-  const totalEl = document.getElementById('cartTotal');
+  const container  = document.getElementById('cartItems');
+  const badge      = document.getElementById('cart-badge');
+  const totalEl    = document.getElementById('cartTotal');
   const checkoutBtn = document.getElementById('checkoutBtn');
 
   const totalQty = keys.reduce((s, k) => s + cart[k].qty, 0);
@@ -107,8 +117,8 @@ function renderCart() {
     const ci = cart[k];
     return `
       <div class="cart-item">
-        <div class="ci-emoji">
-          <img src="${ci.img}" alt="${ci.name}" style="width:100%; height:100%; object-fit:cover;">
+        <div class="ci-emoji" style="overflow:hidden;border-radius:8px;">
+          ${imgTag(ci.img, ci.name)}
         </div>
         <div class="ci-info">
           <div class="ci-name">${ci.name}</div>
