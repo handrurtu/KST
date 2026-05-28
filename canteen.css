@@ -51,8 +51,6 @@
     justify-content: center;
   }
 
-  .brand-icon svg { width: 26px; height: 26px; fill: var(--bg); }
-
   .brand-text h1 {
     font-family: 'Syne', sans-serif;
     font-size: 1rem;
